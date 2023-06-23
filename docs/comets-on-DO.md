@@ -5,11 +5,9 @@ The following tutorial explains how to deploy a comet on Digital Ocean.
 It assumes that you:
 - have a Digital Ocean account and familiarity with creating Droplets
 - some familiarty with the command line terminal
-
-* Create a droplet with the latest Ubuntu
-* Choose the Shared CPU: Basic plan with 2GB RAM as a minimum.
-* NOTE: Urbit needs at least 2GB RAM to run.
-
+- Create a droplet with the latest Ubuntu
+- Choose the Shared CPU: Basic plan with 2GB RAM as a minimum.
+- NOTE: Urbit needs at least 2GB RAM to run.
 
 ## Setup local SSH key
 
@@ -33,7 +31,6 @@ Copy the output and add it to your Digital Ocean account.
 - ensure your SSH key is set
 - give the droplet a unique hostname (`<YOUR_DROPLET_NAME>`)
 - click on Additional Options, check **Add Initialization Scripts (Free)**, and paste the following script:
-- finally, create your droplet and note its IP (`<YOUR_IP>`) for later
 
 ```
 #!/bin/bash
@@ -84,8 +81,9 @@ apt install -y tmux
 systemctl reboot
 ```
 
-## Connect to your Droplet
+- finally, create your droplet and note its IP (`<YOUR_IP>`) for later
 
+## Connect to your Droplet
 
 On your local machine, open `~/.ssh/config` with the editor of your choice and add the following lines to the file:
 
@@ -105,25 +103,17 @@ $ ssh <YOUR_DROPLET_NAME>
 
 ## Booting Your Comet
 
-Set an env var for you comet name.
-
-```
-$ export COMET_NAME=my-fist-comet
-```
-
 To activate and boot a new comet, run:
 
 ```
-$ ./urbit -c $COMET_NAME
+$ ./urbit -c my-new-comet
 ```
 
-**Note:** This will create a directory (i.e., a `pier`) at `$COMET_NAME`.,
+**Note:** This will create a directory (i.e., a `pier`) at `my-new-comet`.,
 
 This step can take several minutes to initialize. The tail end of the output should look like:
 
 ```
-TODO add full output
-->Output
 ---------------- playback complete ----------------
 vere: checking version compatibility
 loom: image backup complete
@@ -141,10 +131,10 @@ ames: metamorphosis
 ~palnyd_binzod:dojo> 
 ```
 
-Finally, mount the filesystem with:
+In the `dojo`,, mount the filesystem with:
 
 ```
-$ |mount %
+dojo> |mount %
 ```
 
 ## Dock And Run Your Comet
@@ -154,8 +144,8 @@ Now hit Ctrl-D to exit your Comet. We then need to dock it before running it on 
 Do so with the following:
 
 ```
-$ ./urbit dock $COMET_NAME
-$ sudo setcap 'cap_net_bind_service=+ep' $COMET_NAME/.run
+$ ./urbit dock my-new-comet 
+$ sudo setcap 'cap_net_bind_service=+ep' my-new-comet/.run
 ```
 
 Use `screen` to run Urbit in the background
@@ -167,54 +157,28 @@ $ screen -S urbit
 Start your Comet up with:
 
 ```
-$ ./$COMET_NAME/.run -p 34543
+$ ./my-new-comet/.run -p 34543
 ```
 
 ## Connect to your Comet in the Browser
 
-Now that you have your Comet up and running you should be able to connect directly by typing your into your browser
-but first you need your login info which can be found by typing:
+Now that you have your Comet up and running, you can connect to it by going to `<YOUR_IP>` in the browser. But first you need your login info which can be found by typing:
 
 ```
 $ +code
 ```
 
-Once it's up and running press Ctrl + A + D to close the screen.
-If you ever need to get back to this screen to find your login code or to make changes use the following:
+Once it's up and running press Ctrl + A + D to close `screen`. To get back to this screen, e.g., to get your login code again or to make changes, use the following:
 
 ```
 $ screen -r urbit
 ```
 
-Open in your browser and login with you web login code from above.  This will take you to the Urbit homescreen loaded with
-default apps (Groups, Talk, Terminal).
+Open your browser at (`<YOUR_IP>`) and login with the code from above. This will take you to the Urbit homescreen (Landscape) with
+default apps (Groups, Talk, Terminal). You're now set to explore Urbit with your comet!
 
-That's it!  You're all set!
+## Limitations & Next Steps
 
+Because we haven't setup and configured SSL for our comet, many apps will either be too slow or not work at all. For the cosmonauts reading along - or anyone else wanting to try an app that works out of the box, we suggest Osmosis:
 
-# A TO Z LINUX CLI
-#Setup SSH
-$ ssh-keygen
-$ cat ~/.ssh/id_rsa.pub
-$ subl ~/.ssh/config
-
-#Login and create
-$ ssh $DIGITALOCEANNAME
-$ ./urbit -c $COMETNAME
-
-#Setup Urbit and run
-$ |mount %
-$ ./urbit dock $COMETNAME
-$ sudo setcap 'cap_net_bind_service=+ep' $COMETNAME/.run
-$ screen -S urbit
-$ ./$COMETNAME/.run -p 34543
-
-#Get login code
-$ +code
-
-#Restart Urbit screen
-$ screen -r urbit
-
-## Next Steps
-
-Apps, TODO, osmosis
+- [Swap Tokens on Osmosis, Self-Hosted on Urbit](./osmosis-on-urbit.md)

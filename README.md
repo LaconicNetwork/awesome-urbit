@@ -12,5 +12,11 @@ The many existing hosting providers that come with a planet are excellent - but 
 
 Stock Urbit comes with a few apps - but there is a whole world of cool apps out there - and they aren't searcheable. Many are slow and require persistence to get working. Osmosis just works (if you know how to install it). Read along:
 
-- [Swap Tokens on Osmosis Self-Hosted on Urbit](docs/osmosis-on-urbit.md)
+- [Swap Tokens on Osmosis, Self-Hosted on Urbit](docs/osmosis-on-urbit.md)
+
+## Visualizing Urbit
+
+Urbit introduces a plethora of new terminology; this diagram helps "view" things in a coherent way.
+
+![urbit-diagram](images/UrbitOverview.png)
  
