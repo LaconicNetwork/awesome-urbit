@@ -5,9 +5,6 @@ The following tutorial explains how to deploy a comet on Digital Ocean.
 It assumes that you:
 - have a Digital Ocean account and familiarity with creating Droplets
 - some familiarty with the command line terminal
-- Create a droplet with the latest Ubuntu
-- Choose the Shared CPU: Basic plan with 2GB RAM as a minimum.
-- NOTE: Urbit needs at least 2GB RAM to run.
 
 ## Setup local SSH key
 
@@ -27,7 +24,7 @@ Copy the output and add it to your Digital Ocean account.
 
 ## Setup your Droplet
 
-- choose a Shared CPU: Basic Plan with at least 2GB of RAM
+- choose a Shared CPU: Basic Plan with at least 2GB of RAM and the latest Ubuntu
 - ensure your SSH key is set
 - give the droplet a unique hostname (`<YOUR_DROPLET_NAME>`)
 - click on Additional Options, check **Add Initialization Scripts (Free)**, and paste the following script:
@@ -118,7 +115,7 @@ This step can take several minutes to initialize. The tail end of the output sho
 vere: checking version compatibility
 loom: image backup complete
 ames: live on 40019
-conn: listening on /home/urbit/mycomet/.urb/conn.sock
+conn: listening on /home/urbit/my-new-comet/.urb/conn.sock
 http: web interface live on http://localhost:8080
 http: loopback live on http://localhost:12321
 pier (26): live
