@@ -16,7 +16,6 @@ Stock Urbit comes with a few apps - but there is a whole world of cool apps out 
 
 ## Visualizing Urbit
 
-Urbit introduces a plethora of new terminology; this diagram helps "view" things in a coherent way.
+Urbit introduces a plethora of new terminology; this diagram should help connect dots for the budding Urbit enthusiast.
 
 ![urbit-diagram](images/UrbitOverview.png)
- 
