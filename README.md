@@ -1,6 +1,6 @@
 # awesome-urbit
 
-Resources to help new users orient themselves around - and easily get started with - Urbit. This repository complements the [existing introductory documentation](https://urbit.org/getting-started). The [urbit/awesome-urbit](https://github.com/urbit/awesome-urbit) repo is a great next step once you have joined the network.
+Resources to help new users orient themselves around - and easily get started with - Urbit. This repository complements the [existing introductory documentation](https://urbit.org/getting-started) but focuses on onboarding users rather than developers. The [urbit/awesome-urbit](https://github.com/urbit/awesome-urbit) repo is a great next step once you have joined the network and are comfortable using it regularly.
 
 ## Getting Started
 
