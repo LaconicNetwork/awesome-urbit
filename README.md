@@ -4,18 +4,26 @@ Resources to help new users orient themselves around - and easily get started wi
 
 ## Getting Started
 
-The many existing hosting providers that come with a planet are excellent - but these involve both vague and explicit commitments. We've found this to be a barrier to entry for those wanting to quickly experiment trying out Urbit and existing apps, in a throwaway environment. They also obfuscate what is happening under the hood. To this end, the following doc explains a repeatable process for deploying comets on Digital Ocean:
+The many existing hosting providers that come with a planet are excellent - but these involve both vague and explicit commitments. We've found this to be a barrier to entry for those wanting to quickly experiment trying out Urbit and existing apps, in a throwaway environment. They also obfuscate what is happening under the hood.
 
-- [Deploying Urbit Comets on Digital Ocean](/docs/comets-on-DO.md)
+To this end, the following doc explains a repeatable process for deploying comets on Digital Ocean:
+
+- [Deploy an Urbit Comet on Digital Ocean](/docs/comets-on-DO.md)
 
 ## Using Osmosis
 
-Stock Urbit comes with a few apps - but there is a whole world of cool apps out there - and they aren't searcheable. Many are slow and require persistence to get working. Osmosis just works (if you know how to install it). Read along:
+If you're in Cosmos and care about sovereignty, start here. Osmosis works out of the box:
 
-- [Swap Tokens on Osmosis, Self-Hosted on Urbit](docs/osmosis-on-urbit.md)
+- [Swap Tokens on Osmosis, Self-Hosted on Urbit](/docs/osmosis-on-urbit.md)
+
+## Azimuth Watcher
+
+Like most applications that use Ethereum, the Azimuth PKI relies on Infura, a centralized service provider. Laconic created the Azimuth Watcher to contribute towards ongoing decentralization of the Urbit stack. Read along:
+
+- [Azimuth Watcher](/docs/azimuth-watcher.md)
 
 ## Visualizing Urbit
 
-Urbit introduces a plethora of new terminology; this diagram should help connect dots for the budding Urbit enthusiast.
+Urbit introduces a plethora of new terminology; this diagram should help connect dots for the budding Urbit enthusiast. As a user, you have many options for running Urbit, depending on your use case.
 
 ![urbit-diagram](images/UrbitOverview.png)
