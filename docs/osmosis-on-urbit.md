@@ -6,7 +6,7 @@ Follow along for a step-by-step guide to installing and using Osmosis on Urbit.
 
 There are many reasons but it boils down to:
 
-- not having to rely on [app.osmosis.zone](app.osmosis.zone) if it ever goes down or is censored
+- not having to rely on [app.osmosis.zone](https://app.osmosis.zone) if it ever goes down or is censored
 - control over the app; you own its data
 
 ## Pre-requisits
@@ -17,4 +17,4 @@ There are many reasons but it boils down to:
 
 ## Install the App
 
-From the Landscape web UI where your comet/moon/planet is access, paste `~larryx-woldyr` in the search bar. This is the identify of the developer who published the Osmosis app on Urbit. A list of apps will appear, select "Install Osmosis" and once installed, open it; it'll make a new tab. Connect Keplr, send it some tokens, do a swap, and verify that it worked on [mintscan.io](mintscan.io).
+From the Landscape web UI where your comet/moon/planet is access, paste `~larryx-woldyr` in the search bar. This is the identify of the developer who published the Osmosis app on Urbit. A list of apps will appear, select "Install Osmosis" and once installed, open it; it'll make a new tab. Connect Keplr, send it some tokens, do a swap, and verify that it worked on [mintscan.io](https://mintscan.io).
