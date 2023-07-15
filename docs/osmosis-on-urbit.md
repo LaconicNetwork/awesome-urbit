@@ -13,7 +13,7 @@ There are many reasons but it boils down to:
 
 - Keplr installed on a compatible browser
 - tokens that can be sent to Osmosis
-- an Urbit comet/moon/planet installed and accessible (see [here](/comets-on-DO.md) to quickly deploy a comet)
+- an Urbit comet/moon/planet installed and accessible (see [here](comets-on-DO.md) to quickly deploy a comet)
 
 ## Install the App
 
