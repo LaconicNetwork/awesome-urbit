@@ -128,7 +128,7 @@ ames: metamorphosis
 ~palnyd_binzod:dojo> 
 ```
 
-In the `dojo`,, mount the filesystem with:
+In the `dojo`, mount the filesystem with:
 
 ```
 dojo> |mount %
@@ -159,10 +159,10 @@ $ ./my-new-comet/.run -p 34543
 
 ## Connect to your Comet in the Browser
 
-Now that you have your Comet up and running, you can connect to it by going to `<YOUR_IP>` in the browser. But first you need your login info which can be found by typing:
+Now that you have your Comet up and running, you can connect to it by going to `<YOUR_IP>` in the browser. But first you need your login info which can be found by typing the following in the `dojo`:
 
 ```
-$ +code
+dojo> +code
 ```
 
 Once it's up and running press Ctrl + A + D to close `screen`. To get back to this screen, e.g., to get your login code again or to make changes, use the following:
