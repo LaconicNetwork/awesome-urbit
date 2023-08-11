@@ -1,8 +1,8 @@
-# Azimuth
+# Azimuth Watcher
 
 Azimuth is the public-key infrastructure used for Urbit identities, deployed as [smart contracts](https://github.com/urbit/azimuth) on Ethereum. For a deep dive, the official documentation has an [in-depth reference](https://developers.urbit.org/reference/azimuth/azimuth).
 
-It currently [relies on Infura](https://developers.urbit.org/reference/azimuth/flow#eth-watcher), as seen in this diagram:
+It currently [relies on events from Infura](https://developers.urbit.org/reference/azimuth/flow#eth-watcher), as seen in this diagram:
 
 ![urbit-infura](/images/roller-agents.png)
 
@@ -14,17 +14,19 @@ uses [three additional centralized service providers](https://github.com/urbit/n
 
 ![urbit-network](/images/network-website.svg)
 
-Ideally, these core components of the Urbit stack would not rely on centralized entities.
+Ideally, these core components of the Urbit stack would not rely on centralized entities. Additionally, events are not verifiable.
 
 ## Ethereum Data
 
-The problem of "getting data from Ethereum" is not unique to Urbit and plagues nearly all applications that rely on blockchain data. This is why Laconic created the [watcher framework](https://github.com/cerc-io/watcher-ts/), which significantly reduces the cost of reading and verifying blockchain data. This framework was used to create the Azimuth Watcher, which provides a GraphQL interface for querying the Azimuth contracts' state.
+The problem of "getting data from Ethereum" is not unique to Urbit and plagues nearly all applications that rely on blockchain data. Users and Dapp developers either run a full archive node (tricky and expensive) or rely on centralized service providers (easy and expensive). This is one reason why Laconic created the [watcher framework](https://github.com/cerc-io/watcher-ts/), which significantly reduces the cost of reading and verifying blockchain data. This framework was used to create the Azimuth Watcher, which provides a GraphQL interface for querying the Azimuth contracts' state.
 
 ## Usage
 
 Although the Azimuth Watcher is open source, running the whole stack is computationally expensive. It is hosted here for your convenience:
 
 - [https://azimuth.dev.vdb.to/graphql](https://azimuth.dev.vdb.to/graphql)
+
+**Note:** The Azimuth Watcher is currently a prototype and serves only L1 data. L2 is forthcoming.
 
 From the GraphQL Dashboard, try this query:
 
