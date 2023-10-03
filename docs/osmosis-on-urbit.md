@@ -9,7 +9,7 @@ There are many reasons but it boils down to:
 - not having to rely on [app.osmosis.zone](https://app.osmosis.zone) if it ever goes down or is censored
 - control over the app; you own its data
 
-## Pre-requisits
+## Prerequisites
 
 - Keplr installed on a compatible browser
 - tokens that can be sent to Osmosis
@@ -17,4 +17,6 @@ There are many reasons but it boils down to:
 
 ## Install the App
 
-From the Landscape web UI where your comet/moon/planet is access, paste `~larryx-woldyr` in the search bar. This is the identify of the developer who published the Osmosis app on Urbit. A list of apps will appear, select "Install Osmosis" and once installed, open it; it'll make a new tab. Connect Keplr, send it some tokens, do a swap, and verify that it worked on [mintscan.io](https://mintscan.io).
+From the Landscape web UI where your comet/moon/planet is accessed, paste `~larryx-woldyr` in the search bar. This is the identity of the developer who published the Osmosis app on Urbit. A list of apps will appear, select "Install Osmosis" and once installed, open it; it'll make a new tab. Connect Keplr, send it some tokens, do a swap, and verify that it worked on [mintscan.io](https://mintscan.io).
+
+Note: when you download an app on Urbit, it is from someone else's ship. If their ship is down, you won't be able to download the app from them. In that case you would ask around in a public group chat for someone who has a copy - or find the source code and run it yourself.
