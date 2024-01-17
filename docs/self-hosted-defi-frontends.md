@@ -1,6 +1,6 @@
 # Self Hosted DeFi Front Ends
 
-TL;DR: `install ~lanfyn-dasnys %uniswap`
+TL;DR: `|install ~lanfyn-dasnys %uniswap`
 
 Applications in web3 still remain significantly centralized. Usually, the blockchain used by a particular application cannot easily be censored. However, front ends are always served to users via a centralized pipeline of service providers, each of which is a choke point for that application.
 
