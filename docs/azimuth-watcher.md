@@ -22,84 +22,202 @@ The problem of "getting data from Ethereum" is not unique to Urbit and plagues n
 
 ## Usage
 
-Although the Azimuth Watcher is open source, running the whole stack is computationally expensive. It is hosted here for your convenience:
+Although the Azimuth Watcher is open source, running the whole stack is computationally expensive. It is here hosted for your convenience:
 
-- [https://azimuth.dev.vdb.to/graphql](https://azimuth.dev.vdb.to/graphql)
+- https://azimuth.dev.vdb.to/graphql
 
-**Note:** The Azimuth Watcher is currently a prototype and serves only L1 data. L2 is forthcoming.
+### Queries
 
-From the GraphQL Dashboard, try this query:
+- range can be maximum 1000 blocks
+- includes full history from contract genesis
+
+[Example query from contract genesis](https://azimuth.dev.vdb.to/graphql?query=%7B%0A++azimuthEventsInRange%28fromBlockNumber%3A+%0A6784880%2C+toBlockNumber%3A+%0A6785880%29+%7B%0A++++block+%7B%0A++++++hash%0A++++++timestamp%0A++++%7D%0A++++event+%7B%0A++++++...+on+OwnerChangedEvent+%7B%0A++++++++__typename%0A++++++++owner%0A++++++++point%0A++++++%7D%0A++++++...+on+ActivatedEvent+%7B%0A++++++++__typename%0A++++++++point%0A++++++%7D%0A++++++...+on+SpawnedEvent+%7B%0A++++++++__typename%0A++++++++child%0A++++++%7D%0A++++%7D%0A++++contract%0A++%7D%0A%7D)
 
 ```
 {
-  azimuthIsActive(
-    blockHash: "0x2461e78f075e618173c524b5ab4309111001517bb50cfd1b3505aed5433cf5f9"
-    contractAddress: "0x223c067F8CF28ae173EE5CafEa60cA44C335fecB"
-    _point: 1
-  ) {
-    value
-  }
-  censuresGetCensuredByCount(
-    blockHash: "0x2461e78f075e618173c524b5ab4309111001517bb50cfd1b3505aed5433cf5f9"
-    contractAddress: "0x325f68d32BdEe6Ed86E7235ff2480e2A433D6189"
-    _who: 6054
-  ) {
-    value
-  }
-  claimsFindClaim(
-    blockHash: "0x2461e78f075e618173c524b5ab4309111001517bb50cfd1b3505aed5433cf5f9"
-    contractAddress: "0xe7e7f69b34D7d9Bd8d61Fb22C33b22708947971A"
-    _whose: 1967913144
-    _protocol: "text"
-    _claim: "Shrek is NOT Drek!"
-  ) {
-    value
-  }
-  linearStarReleaseVerifyBalance(
-    blockHash: "0x2461e78f075e618173c524b5ab4309111001517bb50cfd1b3505aed5433cf5f9"
-    contractAddress: "0x86cd9cd0992F04231751E3761De45cEceA5d1801"
-    _participant: "0xbD396c580d868FBbE4a115DD667E756079880801"
-  ) {
-    value
-  }
-  conditionalStarReleaseWithdrawLimit(
-    blockHash: "0x2461e78f075e618173c524b5ab4309111001517bb50cfd1b3505aed5433cf5f9"
-    contractAddress: "0x8C241098C3D3498Fe1261421633FD57986D74AeA"
-    _participant: "0x7F0584938E649061e80e45cF88E6d8dDDb22f2aB"
-    _batch: 2
-  ) {
-    value
-  }
-  pollsGetUpgradeProposalCount(
-    blockHash: "0xeaf611fabbe604932d36b97c89955c091e9582e292b741ebf144962b9ff5c271"
-    contractAddress: "0x7fEcaB617c868Bb5996d99D95200D2Fa708218e4"
-  ) {
-    value
-  }
-  eclipticBalanceOf(
-    blockHash: "0x5e82abbe6474caf7b5325022db1d1287ce352488b303685493289770484f54f4"
-    contractAddress: "0x33EeCbf908478C10614626A9D304bfe18B78DD73"
-    _owner: "0x4b5E239C1bbb98d44ea23BC9f8eC7584F54096E8"
-  ) {
-    value
-  }
-  delegatedSendingCanSend(
-    blockHash: "0x2461e78f075e618173c524b5ab4309111001517bb50cfd1b3505aed5433cf5f9"
-    contractAddress: "0xf6b461fE1aD4bd2ce25B23Fe0aff2ac19B3dFA76"
-    _as: 1
-    _point: 1
-  ) {
-    value
+  azimuthEventsInRange(fromBlockNumber: 
+6784880, toBlockNumber: 
+6785880) {
+    block {
+      hash
+      timestamp
+    }
+    event {
+      ... on OwnerChangedEvent {
+        __typename
+        owner
+        point
+      }
+      ... on ActivatedEvent {
+        __typename
+        point
+      }
+      ... on SpawnedEvent {
+        __typename
+        child
+      }
+    }
+    contract
   }
 }
 ```
 
-Notice in the response that: `"claimsFindClaim": { "value": 1 }`. Re-run the query but modify the claim, e.g.,: `_claim: "Shrek IS Drek!` and the response should return a `{ "value": 0 }`.
+[Recent query](https://azimuth.dev.vdb.to/graphql?query=%7B%0A++azimuthEventsInRange%28fromBlockNumber%3A+%0A18664121%2C+toBlockNumber%3A+%0A18664122%29+%7B%0A++++block+%7B%0A++++++hash%0A++++++timestamp%0A++++%7D%0A++++event+%7B%0A++++++...+on+OwnerChangedEvent+%7B%0A++++++++__typename%0A++++++++owner%0A++++++++point%0A++++++%7D%0A++++++...+on+ActivatedEvent+%7B%0A++++++++__typename%0A++++++++point%0A++++++%7D%0A++++++...+on+SpawnedEvent+%7B%0A++++++++__typename%0A++++++++child%0A++++++%7D%0A++++%7D%0A++++contract%0A++%7D%0A%7D)
 
-On the left-hand side of GraphQL Dashboard, click the Folder icon (Show GraphiQL Explorer) to see all the available queries you can make.
+```
+{
+  azimuthEventsInRange(fromBlockNumber: 
+18664121, toBlockNumber: 
+18664122) {
+    block {
+      hash
+      timestamp
+    }
+    event {
+      ... on OwnerChangedEvent {
+        __typename
+        owner
+        point
+      }
+      ... on ActivatedEvent {
+        __typename
+        point
+      }
+      ... on SpawnedEvent {
+        __typename
+        child
+      }
+    }
+    contract
+  }
+}
+```
+
+### Websocket Subscriptions
+
+#### With Console
+
+go to: https://azimuth.dev.vdb.to/azimuth/graphql
+
+try:
+```
+ subscription MySubscription {
+    onEvent {
+      contract
+      event {
+        ... on OwnerChangedEvent {
+          owner
+          point
+        }
+        __typename
+      }
+      proof {
+        data
+      }
+    }
+  }
+```
+
+#### In an app
+
+in, e.g., `azimuth.js`:
+
+```
+// Reference: https://github.com/enisdenjo/graphql-ws/tree/v5.12.0#use-the-client
+const { createClient } = require('graphql-ws');
+const WebSocket = require('ws');
+
+const client = createClient({
+  url: 'wss://azimuth.dev.vdb.to/azimuth/graphql',
+  webSocketImpl: WebSocket
+});
+
+// subscription
+(async () => {
+  const onNext = (value) => {
+    /* handle incoming values */
+    console.log('Received new data:', JSON.stringify(value, null, 2));
+  };
+
+  let unsubscribe = () => {
+    /* complete the subscription */
+    console.log('subscription completed')
+  };
+
+  const query = `
+  subscription MySubscription {
+    onEvent {
+      contract
+      event {
+        ... on OwnerChangedEvent {
+          owner
+          point
+        }
+        __typename
+      }
+    }
+  }
+  `;
+
+  try {
+    await new Promise((resolve, reject) => {
+      unsubscribe = client.subscribe(
+        { query },
+        {
+          next: onNext,
+          error: reject,
+          complete: resolve,
+        },
+      );
+    });
+  } catch (err) {
+    console.error(err);
+  }
+})();
+```
+
+then run:
+```
+node azimuth.js
+```
+
+example responses:
+```
+Received new data: {
+  "data": {
+    "onEvent": {
+      "contract": "0x223c067F8CF28ae173EE5CafEa60cA44C335fecB",
+      "event": {
+        "owner": "0xCfB830a6ffBC26e847ec40533e102528F7F9D345",
+        "point": "2658108823",
+        "__typename": "OwnerChangedEvent"
+      }
+    }
+  }
+}
+Received new data: {
+  "data": {
+    "onEvent": {
+      "contract": "0x223c067F8CF28ae173EE5CafEa60cA44C335fecB",
+      "event": {
+        "__typename": "BrokeContinuityEvent"
+      }
+    }
+  }
+}
+Received new data: {
+  "data": {
+    "onEvent": {
+      "contract": "0x223c067F8CF28ae173EE5CafEa60cA44C335fecB",
+      "event": {
+        "__typename": "ChangedKeysEvent"
+      }
+    }
+  }
+}
+```
 
 ## DIY
 
 - View the source code [here](https://github.com/cerc-io/azimuth-watcher-ts).
-
 - Use Stack Orchestrator to run the Azimuth Watcher [stack](https://github.com/cerc-io/stack-orchestrator/tree/main/app/data/stacks/azimuth).
