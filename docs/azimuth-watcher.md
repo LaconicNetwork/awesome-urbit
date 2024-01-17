@@ -6,23 +6,13 @@ It currently [relies on events from Infura](https://developers.urbit.org/referen
 
 ![urbit-infura](/images/roller-agents.png)
 
-The excellent Urbit network explorer:
-
-- [https://network.urbit.org](https://network.urbit.org)
-
-uses [three additional centralized service providers](https://github.com/urbit/network-explorer#backend-architecture-diagram), seen below
-
-![urbit-network](/images/network-website.svg)
-
-Ideally, these core components of the Urbit stack would not rely on centralized entities. Additionally, events are not verifiable.
-
-## Ethereum Data
+Ideally, this core components of the Urbit stack would not rely on centralized entities. Additionally, events are not verifiable, which defeats the purpose of certain applications using them.
 
 The problem of "getting data from Ethereum" is not unique to Urbit and plagues nearly all applications that rely on blockchain data. Users and Dapp developers either run a full archive node (tricky and expensive) or rely on centralized service providers (easy and expensive). This is one reason why Laconic created the [watcher framework](https://github.com/cerc-io/watcher-ts/), which significantly reduces the cost of reading and verifying blockchain data. This framework was used to create the Azimuth Watcher, which provides a GraphQL interface for querying the Azimuth contracts' state.
 
 ## Usage
 
-Although the Azimuth Watcher is open source, running the whole stack is computationally expensive. It is here hosted for your convenience:
+The Azimuth Watcher is open source (see below) but requires good hardware. It is here hosted for your convenience:
 
 - https://azimuth.dev.vdb.to/graphql
 
