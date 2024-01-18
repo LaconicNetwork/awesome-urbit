@@ -2,7 +2,7 @@
 
 Azimuth is the public-key infrastructure used for Urbit identities, deployed as [smart contracts](https://github.com/urbit/azimuth) on Ethereum. For a deep dive, the official documentation has an [in-depth reference](https://developers.urbit.org/reference/azimuth/azimuth).
 
-It currently [relies on events from Infura](https://developers.urbit.org/reference/azimuth/flow#eth-watcher), via eth-mainnet.urbit.org, as seen in this diagram:
+It currently [relies on events from Infura](https://developers.urbit.org/reference/azimuth/flow#eth-watcher) (e.g., via eth-mainnet.urbit.org), as seen in this diagram:
 
 ![urbit-infura](/images/roller-agents.png)
 
