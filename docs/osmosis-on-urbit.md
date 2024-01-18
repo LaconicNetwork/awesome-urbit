@@ -1,5 +1,7 @@
 # Running Osmosis, Self-Hosted, on Urbit
 
+**NOTICE:** These instructions are out of date. See [here](https://github.com/cerc-io/stack-orchestrator/tree/main/stack_orchestrator/data/stacks/osmosis-urbit-app) to deploy Osmosis to a fakezod.
+
 Follow along for a step-by-step guide to installing and using Osmosis on Urbit.
 
 ## Why
