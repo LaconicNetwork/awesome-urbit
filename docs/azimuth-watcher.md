@@ -2,7 +2,7 @@
 
 Azimuth is the public-key infrastructure used for Urbit identities, deployed as [smart contracts](https://github.com/urbit/azimuth) on Ethereum. For a deep dive, the official documentation has an [in-depth reference](https://developers.urbit.org/reference/azimuth/azimuth).
 
-It currently [relies on events from Infura](https://developers.urbit.org/reference/azimuth/flow#eth-watcher), as seen in this diagram:
+It currently [relies on events from Infura](https://developers.urbit.org/reference/azimuth/flow#eth-watcher), via eth-mainnet.urbit.org, as seen in this diagram:
 
 ![urbit-infura](/images/roller-agents.png)
 
@@ -211,3 +211,7 @@ Received new data: {
 
 - View the source code [here](https://github.com/cerc-io/azimuth-watcher-ts).
 - Use Stack Orchestrator to run the Azimuth Watcher [stack](https://github.com/cerc-io/stack-orchestrator/tree/main/app/data/stacks/azimuth).
+
+## Future Work
+
+This initial implementation was funded retroactively by the Urbit Foundation. Additional funding is available for a Hoon developer to integrate this source of Azimuth data as an option when running UrbitOS. Contact ~labtul-moltev if you are interested in tackling this task.
