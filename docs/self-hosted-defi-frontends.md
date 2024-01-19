@@ -183,6 +183,274 @@ CERC_IPFS_GLOB_HOST_ENDPOINT=
 CERC_IPFS_SERVER_ENDPOINT=
 ```
 
+Take a look at the `docker-compose.yml` for the fakezod that is about to be deployed:
+
+```
+version: '3.7'
+
+services:
+  # Runs an Urbit fake ship and attempts an app installation using given data
+  # Uploads the app glob to given IPFS endpoint
+  # From urbit_app_builds volume:
+  # - takes app build from ${CERC_URBIT_APP}/build (waits for it to appear)
+  # - takes additional mark files from ${CERC_URBIT_APP}/mar
+  # - takes the docket file from ${CERC_URBIT_APP}/desk.docket-0
+  urbit-fake-ship:
+    restart: unless-stopped
+    image: tloncorp/vere
+    environment:
+      CERC_SCRIPT_DEBUG: ${CERC_SCRIPT_DEBUG}
+      CERC_URBIT_APP: ${CERC_URBIT_APP}
+      CERC_ENABLE_APP_INSTALL: ${CERC_ENABLE_APP_INSTALL:-true}
+      CERC_IPFS_GLOB_HOST_ENDPOINT: ${CERC_IPFS_GLOB_HOST_ENDPOINT:-http://ipfs:5001}
+      CERC_IPFS_SERVER_ENDPOINT: ${CERC_IPFS_SERVER_ENDPOINT:-http://ipfs:8080}
+    entrypoint: ["bash", "-c", "./run-urbit-ship.sh && ./deploy-app.sh && tail -f /dev/null"]
+    volumes:
+      - urbit_data:/urbit
+      - urbit_app_builds:/app-builds
+      - ../config/urbit/run-urbit-ship.sh:/urbit/run-urbit-ship.sh
+      - ../config/urbit/deploy-app.sh:/urbit/deploy-app.sh
+    ports:
+      - "80"
+    healthcheck:
+      test: ["CMD", "nc", "-v", "localhost", "80"]
+      interval: 20s
+      timeout: 5s
+      retries: 15
+      start_period: 10s
+
+volumes:
+  urbit_data:
+  urbit_app_builds:
+```
+
+explain some things...
+
+the scripts `run-urbit-ship.sh` and `deploy-app.sh` look like:
+
+```
+#!/bin/bash
+
+set -e
+if [ -n "$CERC_SCRIPT_DEBUG" ]; then
+  set -x
+fi
+
+pier_dir="/urbit/zod"
+
+# TODO: Bootstrap fake ship on the first run
+
+# Run urbit ship in daemon mode
+# Check if the directory exists
+if [ -d "$pier_dir" ]; then
+  echo "Pier directory already exists, rebooting..."
+  /urbit/zod/.run -d
+else
+  echo "Creating a new fake ship..."
+  urbit -d -F zod
+fi
+```
+
+and
+
+```
+#!/bin/bash
+
+if [ -n "$CERC_SCRIPT_DEBUG" ]; then
+  set -x
+fi
+
+if [ -z "$CERC_URBIT_APP" ]; then
+  echo "CERC_URBIT_APP not set, exiting"
+  exit 0
+fi
+
+echo "Creating Urbit application for ${CERC_URBIT_APP}"
+
+app_desk_dir=/urbit/zod/${CERC_URBIT_APP}
+if [ -d ${app_desk_dir} ]; then
+  echo "Desk dir already exists for ${CERC_URBIT_APP}, skipping deployment..."
+  exit 0
+fi
+
+app_build=/app-builds/${CERC_URBIT_APP}/build
+app_mark_files=/app-builds/${CERC_URBIT_APP}/mar
+app_docket_file=/app-builds/${CERC_URBIT_APP}/desk.docket-0
+
+echo "Reading app build from ${app_build}"
+echo "Reading additional mark files from ${app_mark_files}"
+echo "Reading docket file ${app_docket_file}"
+
+# Loop until the app's build appears
+while [ ! -d ${app_build} ]; do
+  echo "${CERC_URBIT_APP} app build not found, retrying in 5s..."
+  sleep 5
+done
+echo "Build found..."
+
+echo "Using IPFS endpoint ${CERC_IPFS_GLOB_HOST_ENDPOINT} for hosting the ${CERC_URBIT_APP} glob"
+echo "Using IPFS server endpoint ${CERC_IPFS_SERVER_ENDPOINT} for reading ${CERC_URBIT_APP} glob"
+ipfs_host_endpoint=${CERC_IPFS_GLOB_HOST_ENDPOINT}
+ipfs_server_endpoint=${CERC_IPFS_SERVER_ENDPOINT}
+
+# Fire curl requests to perform operations on the ship
+dojo () {
+  curl -s --data '{"source":{"dojo":"'"$1"'"},"sink":{"stdout":null}}' http://localhost:12321
+}
+
+hood () {
+  curl -s --data '{"source":{"dojo":"+hood/'"$1"'"},"sink":{"app":"hood"}}' http://localhost:12321
+}
+
+# Create / mount the app's desk
+hood "merge %${CERC_URBIT_APP} our %landscape"
+hood "mount %${CERC_URBIT_APP}"
+
+# Copy over build to desk data dir
+cp -r ${app_build} ${app_desk_dir}
+
+# Copy over the additional mark files
+cp ${app_mark_files}/* ${app_desk_dir}/mar/
+
+rm "${app_desk_dir}/desk.bill"
+rm "${app_desk_dir}/desk.ship"
+
+# Commit changes and create a glob
+hood "commit %${CERC_URBIT_APP}"
+dojo "-landscape!make-glob %${CERC_URBIT_APP} /build"
+
+glob_file=$(ls -1 -c zod/.urb/put | head -1)
+echo "Created glob file: ${glob_file}"
+
+# Upload the glob file to IPFS
+echo "Uploading glob file to ${ipfs_host_endpoint}"
+upload_response=$(curl -X POST -F file=@./zod/.urb/put/${glob_file} ${ipfs_host_endpoint}/api/v0/add)
+glob_cid=$(echo "$upload_response" | grep -o '"Hash":"[^"]*' | sed 's/"Hash":"//')
+
+glob_url="${ipfs_server_endpoint}/ipfs/${glob_cid}?filename=${glob_file}"
+glob_hash=$(echo "$glob_file" | sed "s/glob-\([a-z0-9\.]*\).glob/\1/")
+
+echo "Glob file uploaded to IFPS:"
+echo "{ cid: ${glob_cid}, filename: ${glob_file} }"
+echo "{ url: ${glob_url}, hash: ${glob_hash} }"
+
+# Exit if the installation not required
+if [ "$CERC_ENABLE_APP_INSTALL" = "false" ]; then
+  echo "CERC_ENABLE_APP_INSTALL set to false, skipping app installation"
+  exit 0
+fi
+
+# Curl and wait for the glob to be hosted
+echo "Checking if glob file hosted at ${glob_url}"
+while true; do
+  response=$(curl -sL -w "%{http_code}" -o /dev/null "$glob_url")
+
+  if [ $response -eq 200 ]; then
+    echo "File found at $glob_url"
+    break  # Exit the loop if the file is found
+  else
+    echo "File not found, retrying in a 5s..."
+    sleep 5
+  fi
+done
+
+# Replace the docket file for app
+# Substitue the glob URL and hash
+cp ${app_docket_file} ${app_desk_dir}/
+sed -i "s|REPLACE_WITH_GLOB_URL|${glob_url}|g; s|REPLACE_WITH_GLOB_HASH|${glob_hash}|g" ${app_desk_dir}/desk.docket-0
+
+# Commit changes and install the app
+hood "commit %${CERC_URBIT_APP}"
+hood "install our %${CERC_URBIT_APP}"
+
+echo "${CERC_URBIT_APP} app installed"
+```
+
+Thus, once we start the stack, a loop waits for the static build to complete and the glob to be published, then finalizes installating of the application. 
+
+The `docker-compose.yml` for the uniswap-interface looks like:
+
+```
+version: "3.2"
+
+services:
+  uniswap-interface:
+    image: cerc/uniswap-interface:local
+    restart: on-failure
+    environment:
+      - REACT_APP_INFURA_KEY=${CERC_INFURA_KEY}
+      - REACT_APP_AWS_API_ENDPOINT=${CERC_UNISWAP_GQL}
+    command: ["./build-app.sh"]
+    volumes:
+      - ../config/uniswap-interface/build-app.sh:/app/build-app.sh
+      - urbit_app_builds:/app-builds
+      - ../config/uniswap-interface/urbit-files/mar:/app/mar
+      - ../config/uniswap-interface/urbit-files/desk.docket-0:/app/desk.docket-0
+
+volumes:
+  urbit_app_builds:
+```
+
+whereby `build-app.sh` looks like:
+
+```
+#!/bin/bash
+
+set -e
+if [ -n "$CERC_SCRIPT_DEBUG" ]; then
+  set -x
+fi
+
+# Check and exit if a deployment already exists (on restarts)
+if [ -d /app-builds/uniswap/build ]; then
+  echo "Build already exists, remove volume to rebuild"
+  exit 0
+fi
+
+yarn build
+
+# Copy over build and other files to app-builds for urbit deployment
+mkdir -p /app-builds/uniswap
+cp -r ./build /app-builds/uniswap/
+
+cp -r mar /app-builds/uniswap/
+cp desk.docket-0 /app-builds/uniswap/
+```
+
+There are three mark files that we needed to create and include (recall that any file extensions in the static build that the %landscape desk does not contain need to be added to your the desk for); `map.hoon`, `ttf.hoon`, and `woff.hoon`. See them [here](https://github.com/cerc-io/stack-orchestrator/tree/main/stack_orchestrator/data/config/uniswap-interface/urbit-files/mar) and this is what `woff.hoon` looks like:
+
+```
+|_  dat=octs
+++  grow
+  |%
+  ++  mime  [/font/woff dat]
+  --
+++  grab
+  |%
+  ++  mime  |=([=mite =octs] octs)
+  ++  noun  octs
+  --
+++  grad  %mime
+--
+```
+
+The `desk.docket-0` file is application specific and for Uniswap it looks like:
+
+```
+:~  title+'Uniswap'
+    info+'Self-hosted uniswap frontend.'
+    color+0xcd.75df
+    image+'https://logowik.com/content/uploads/images/uniswap-uni7403.jpg'
+    base+'uniswap'
+    glob-http+['REPLACE_WITH_GLOB_URL' REPLACE_WITH_GLOB_HASH]
+    version+[0 0 1]
+    website+'https://uniswap.org/'
+    license+'MIT'
+==
+```
+
+Recall from a script above, we use `sed` to populate the `glob-http` field. With all these pieces in place, we can start the stack...
+
 ### Start the stack
 
 ```
