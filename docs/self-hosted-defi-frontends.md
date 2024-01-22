@@ -6,9 +6,9 @@ Applications in web3 still remain significantly centralized. Usually, the blockc
 
 On Urbit, an application you install on your ship is always available to you. It will be available to others on the network if you publish it to your ship. However, it will only remain available to others if your ship is online. What was once an easy to install application can easily become unavailable. Indeed, this is what happened to the Osmosis and Uniswap front ends on Urbit.
 
-Laconic provides a various solutions to existing web3 applications that require increased robustness and jurisdictional diversity (read: decentralization), thus the natural alignment with Urbit. The following guide uses Laconic's 'Stack Orchestrator' tool to demonstrate the ease with which any web3 application front end can be integrated into existing CI/CD workflow
+Laconic provides a various solutions to existing web3 applications that require increased robustness and jurisdictional diversity (read: decentralization), thus the natural alignment with Urbit. The following guide uses Laconic's 'Stack Orchestrator' tool to demonstrate the ease with which any web3 application front end can be easily integrated into existing CI/CD workflows, in order to publish and maintain a front end on Urbit.
 
-We address these issues by documenting the pipeline for DeFi applications to publish their front ends on Urbit. Broadly, the steps are as such:
+Broadly, the steps are as such:
 
 - Modify app to conform with Urbit requirements
 - Generate and host a glob file
