@@ -24,11 +24,11 @@ The first step is very much application dependent but only needs to be done once
 
 ## Modify App
 
-Your app front end must comply with a variety of Urbit requirements. The first step is to ensure that you can compile a static build of your application. This build will be consumed by the `globulator` and these files will need to be located in the root of your ships directory. More on this later. You might already have `yarn build:static` or an existing way to generate a static build for your app. If not, ensure your application can run as intended when served as a static build.
+Your app front end must comply with a variety of Urbit requirements. The first step is to ensure that you can compile a static build of your application. This build will be consumed by the Urbit `globulator` and these files will need to be located in the root directory of your Urbit ship (usually a planet). More on this later. You might already have `yarn build:static` or an existing way to generate a static build for your app. If not, ensure your application can run as intended when served as a static build.
 
-The next step is to ensure a few things about the paths/URL in your app. First, all the uppercase letters in all the filenames of your app need to be converted to lowercase. As well, ensure that the file paths and URL does not contain square brackets. Next.js can do awkward things in this regard, for example, with the dynamic path rendering in Osmosis.
+The next step is to ensure a few things about the paths and URL in your app. First, all the uppercase letters in all the filenames of your app need to be converted to lowercase. As well, ensure that the file paths and URL does not contain square brackets. Next.js can do awkward things in this regard, for example, with the dynamic path rendering in Osmosis.
 
-Next, you’ll need to generate mark files that are missing from the default %landscape desk. For simple applications, this should not be necessary. Every file extension in your application requires a corresponding mark file. These are short files written in Hoon that are required for the globulator to function correctly. By inspecting existing mark files, you should get a good idea as to what a new one needs to look like if your application contains any exotic file extensions.
+Next, you’ll need to generate Urbit mark files that are missing from the default `%landscape` desk. For simple applications, this should not be necessary. Every file extension in your application requires a corresponding mark file. These are short files written in Hoon that are required for the globulator to function correctly. By inspecting existing mark files, you should get a good idea as to what a new one needs to look like if your application contains any exotic file extensions.
 
 Finally, you’ll have to decide what to do with external API calls and other services that your app uses. In the case of Uniswap and Osmosis, we run a proxy server and forward requests to the original application. Other solutions to address this issue are outside the scope of this blog post.
 
@@ -111,7 +111,7 @@ RUN echo "Building uniswap-interface" && \
     yarn
 ```
 
-The `watcher-ts` image is used for the proxy server. This proxy server is configurable; by default it re-directs requests back to Uniswap.
+The `watcher-ts` image is used for the proxy server. By default it re-directs requests back to Uniswap. This does mean that the Uniswap front end on Urbit requires api.uniswap.org to be up and running. The configuration also takes an optional Infura API Key, which would be required for power users or increased traffic using the application.
 
 ### Create Deployment
 
@@ -224,21 +224,12 @@ volumes:
   urbit_app_builds:
 ```
 
-explain some things...
-
-the scripts `run-urbit-ship.sh` and `deploy-app.sh` look like:
+On deploy of the above, a fakezod will be deployed and wait for the static build to be globbed. The glob file will be published to a locally running IPFS node, which will be referenced when updating the `desk.docket-0` file. Respectively, the scripts `run-urbit-ship.sh` and `deploy-app.sh` look like:
 
 ```
 #!/bin/bash
 
-set -e
-if [ -n "$CERC_SCRIPT_DEBUG" ]; then
-  set -x
-fi
-
 pier_dir="/urbit/zod"
-
-# TODO: Bootstrap fake ship on the first run
 
 # Run urbit ship in daemon mode
 # Check if the directory exists
@@ -255,10 +246,6 @@ and
 
 ```
 #!/bin/bash
-
-if [ -n "$CERC_SCRIPT_DEBUG" ]; then
-  set -x
-fi
 
 if [ -z "$CERC_URBIT_APP" ]; then
   echo "CERC_URBIT_APP not set, exiting"
@@ -309,9 +296,10 @@ hood "mount %${CERC_URBIT_APP}"
 # Copy over build to desk data dir
 cp -r ${app_build} ${app_desk_dir}
 
-# Copy over the additional mark files
+# Copy over the additional mark files (if required for your application)
 cp ${app_mark_files}/* ${app_desk_dir}/mar/
 
+# Remove unnecessary files
 rm "${app_desk_dir}/desk.bill"
 rm "${app_desk_dir}/desk.ship"
 
@@ -322,7 +310,7 @@ dojo "-landscape!make-glob %${CERC_URBIT_APP} /build"
 glob_file=$(ls -1 -c zod/.urb/put | head -1)
 echo "Created glob file: ${glob_file}"
 
-# Upload the glob file to IPFS
+# Upload the glob file to IPFS (running locally by default)
 echo "Uploading glob file to ${ipfs_host_endpoint}"
 upload_response=$(curl -X POST -F file=@./zod/.urb/put/${glob_file} ${ipfs_host_endpoint}/api/v0/add)
 glob_cid=$(echo "$upload_response" | grep -o '"Hash":"[^"]*' | sed 's/"Hash":"//')
@@ -354,8 +342,7 @@ while true; do
   fi
 done
 
-# Replace the docket file for app
-# Substitue the glob URL and hash
+# Copy in the docket file and substitute the glob URL and hash
 cp ${app_docket_file} ${app_desk_dir}/
 sed -i "s|REPLACE_WITH_GLOB_URL|${glob_url}|g; s|REPLACE_WITH_GLOB_HASH|${glob_hash}|g" ${app_desk_dir}/desk.docket-0
 
@@ -366,7 +353,7 @@ hood "install our %${CERC_URBIT_APP}"
 echo "${CERC_URBIT_APP} app installed"
 ```
 
-Thus, once we start the stack, a loop waits for the static build to complete and the glob to be published, then finalizes installating of the application. 
+Thus, once we start the stack, a loop waits for the static build to complete and the glob to be published, then finalizes installating of the application with the updated `desk.docket-0`.
 
 The `docker-compose.yml` for the uniswap-interface looks like:
 
@@ -396,12 +383,7 @@ whereby `build-app.sh` looks like:
 ```
 #!/bin/bash
 
-set -e
-if [ -n "$CERC_SCRIPT_DEBUG" ]; then
-  set -x
-fi
-
-# Check and exit if a deployment already exists (on restarts)
+# Check and exit if a deployment already exists (for restarts)
 if [ -d /app-builds/uniswap/build ]; then
   echo "Build already exists, remove volume to rebuild"
   exit 0
@@ -416,6 +398,8 @@ cp -r ./build /app-builds/uniswap/
 cp -r mar /app-builds/uniswap/
 cp desk.docket-0 /app-builds/uniswap/
 ```
+
+Throughout the process, `docker volumes` are used for availability of files across docker containers.
 
 There are three mark files that we needed to create and include (recall that any file extensions in the static build that the %landscape desk does not contain need to be added to your the desk for); `map.hoon`, `ttf.hoon`, and `woff.hoon`. See them [here](https://github.com/cerc-io/stack-orchestrator/tree/main/stack_orchestrator/data/config/uniswap-interface/urbit-files/mar) and this is what `woff.hoon` looks like:
 
@@ -434,7 +418,7 @@ There are three mark files that we needed to create and include (recall that any
 --
 ```
 
-The `desk.docket-0` file is application specific and for Uniswap it looks like:
+The `desk.docket-0` file is application specific; for Uniswap it looks like:
 
 ```
 :~  title+'Uniswap'
@@ -558,10 +542,6 @@ app_desk_dir="${pier_dir}/${app_name}"
 echo "Using ${app_desk_dir} as the ${app_name} desk dir path"
 
 # Fire curl requests to perform operations on the ship
-dojo () {
-  curl -s --data '{"source":{"dojo":"'"$1"'"},"sink":{"stdout":null}}' http://localhost:12321
-}
-
 hood () {
   curl -s --data '{"source":{"dojo":"+hood/'"$1"'"},"sink":{"app":"hood"}}' http://localhost:12321
 }
@@ -588,11 +568,21 @@ hood "install our %${app_name}"
 echo "${app_name} app installed"
 ```
 
-## Behind the scenes
+with the main difference here being that the glob already exists and you tell the script which glob to install from. You could imagine hosting a ship with multiple versions of your application.
 
-
+## Summary & Next steps
 
 ## References
 
 - https://github.com/cerc-io/stack-orchestrator/blob/main/stack_orchestrator/data/stacks/uniswap-urbit-app/README.md
 - https://github.com/cerc-io/stack-orchestrator/tree/main/stack_orchestrator/data/config/urbit
+
+## Glossary
+
+ship - a running Urbit
+desk - "app" installed on a ship
+planet - an UrbitID that runs as a ship
+glob file - output after feedind glob files to the globulator
+mark file - Urbit apps need a mark file for every file extension
+landscape - a default app (desk) that comes with *most* mark files that you need.
+Hoon - a programming language for Urbit; not relevant to this guide
