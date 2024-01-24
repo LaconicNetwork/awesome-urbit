@@ -26,17 +26,17 @@ The first step is very much application dependent but only needs to be done once
 
 Your app front end must comply with a variety of Urbit requirements. The first step is to ensure that you can compile a static build of your application. This build will be consumed by the Urbit `globulator` and these files will need to be located in the root directory of your Urbit ship (usually a planet). More on this later. You might already have `yarn build:static` or an existing way to generate a static build for your app. If not, ensure your application can run as intended when served as a static build.
 
-The next step is to ensure a few things about the paths and URL in your app. First, all the uppercase letters in all the filenames of your app need to be converted to lowercase. As well, ensure that the file paths and URL does not contain square brackets. Next.js can do awkward things in this regard, for example, with the dynamic path rendering in Osmosis.
+The next step is to ensure a few things about the files, paths, and URL in your app. First, all the uppercase letters in all the file names of your app need to be converted to lowercase. As well, ensure that the file paths and URL does not contain square brackets. Next.js can do awkward things in this regard, for example, with the dynamic path rendering.
 
 Next, you’ll need to generate Urbit mark files that are missing from the default `%landscape` desk. For simple applications, this should not be necessary. Every file extension in your application requires a corresponding mark file. These are short files written in Hoon that are required for the globulator to function correctly. By inspecting existing mark files, you should get a good idea as to what a new one needs to look like if your application contains any exotic file extensions.
 
-Finally, you’ll have to decide what to do with external API calls and other services that your app uses. In the case of Uniswap and Osmosis, we run a proxy server and forward requests to the original application. Other solutions to address this issue are outside the scope of this blog post.
+Finally, you’ll have to decide what to do with external API calls and other services that your app uses. In the case of Uniswap, we run a proxy server and forward requests to the original application. Other solutions to address this issue are outside the scope of this blog post.
 
-You can view the modifications required for each Uniswap and Osmosis. These changes aren’t upstreamed, therefore publishing new versions to Urbit requires manually rebasing and addressing any merge conflicts, followed by re-globbing and updating the `desk.docket-0` file, as described next.
+You can view the modifications required to the Uniswap front end in [our fork here](https://github.com/cerc-io/uniswap-interface/pulls?q=is%3Apr+is%3Aclosed). These changes aren’t upstreamed, therefore publishing new versions to Urbit would require manually rebasing and addressing any merge conflicts, followed by re-globbing and updating the `desk.docket-0` file, as described next. For your application, this process can easily be automated using existing CI/CD workflows.
 
 ## Globulate
 
-The majority of any Urbit app is packaged up into something called a `glob`. This glob can either be served over http or ames. Most of the Urbit documentation focuses on examples using ames and the globulator UI, rather than http over the command line. For automation, we use the latter.
+The front end of an Urbit app is packaged up into something called a `glob`. This glob can either be served over http or ames. The Urbit documentation has great examples using ames and the globulator UI. For ease of automation, we use http and glob from a bash script that sends `curl` requests to a running fakezod.
 
 The static build of the application are the files that need to be globbed. A directory of these files needs to be located in the root of your ships directory. Under the hood, we’ve abstracted away the majority of this part.
 
@@ -46,7 +46,7 @@ An http glob can be hosted wherever you want, like Amazon S3 or Digital Ocean Sp
 
 ### desk.docket-0
 
-The tile for each app that you see when logging into your Urbit is defined by the desk.docket-0. Therefore, the 
+The tile for each app that you see when logging into your Urbit is defined by the desk.docket-0. Therefore, adding CI/CD workflows to a traditional app for Urbit requires updating this file and re-publishing an application.
 
 ## Install and Publish
 
@@ -55,6 +55,26 @@ This part is ensuring that your desk.docket-0 is correct then running `|install 
 To separate the development and production workflows, we use a fakezod for reviewing and testing modifications, then when ready to publish to the network, use a deployment script directed at a live planet. That's how Uniswap was made available to anyone on the Urbit network. Run `|install ~lanfyn-dasnys %uniswap` in your dojo.
 
 ## Demo
+
+### Install Stack Orchestrator
+
+```
+git clone https://github.com/cerc-io/stack-orchestrator.git
+cd stack-orchestrator
+./scripts/quick-install-linux.sh
+```
+
+press Y and follow the instructions at the end, then;
+
+```
+laconic-so version
+```
+
+should look like:
+
+```
+Version: 1.1.0-cef73d8-202401231732
+```
 
 With a handful of new concepts involved in Urbit app development, automated DeFi deployments happened to be a great fit for the Laconic Stack Orchestrator tool. We’ve distilled the above steps into a few commands that can be run by anyone on a stock Digital Ocean. The following instructions will build and deploy the Uniswap front end to a fakezod. `laconic-so` has specific "stacks" that are defined by a `stack.yml`. For the Uniswap Urbit App, it looks like this:
 
@@ -78,7 +98,7 @@ We'll be building two docker images; one for the app and one for the proxy serve
 
 ### Setup
 
-Clone the required repositories:
+First, clone the required repositories:
 
 ```
 laconic-so --stack uniswap-urbit-app setup-repositories
@@ -87,14 +107,32 @@ laconic-so --stack uniswap-urbit-app setup-repositories
 The output looks like:
 
 ```
-TODO
+Dev Root is: /root/cerc
+Dev root directory doesn't exist, creating
+Checking: /root/cerc/uniswap-interface: Needs to be fetched
+100%|#####################################################################################################################| 43.8k/43.8k [00:05<00:00, 7.77kB/s]
+switching to branch laconic in repo cerc-io/uniswap-interface
+Checking: /root/cerc/watcher-ts: Needs to be fetched
+100%|#####################################################################################################################| 12.2k/12.2k [00:01<00:00, 6.82kB/s]
+switching to branch v0.2.78 in repo cerc-io/watcher-ts
 ```
+
+You can see we cloned the two repos and switched to the branch/tag/version specified in the `stack.yml`
 
 ### Build
 
 ```
 laconic-so --stack uniswap-urbit-app build-containers
 ```
+
+This can take awhile and will produce a ton of output; if successful, you'll see something like:
+
+```
+Successfully built fa34caca25f1
+Successfully tagged cerc/watcher-ts:local
+```
+
+at the end.
 
 The `uniswap-interface` image is simple; it installs the dependencies for our modified version of Uniswap. The static build will be produced at deploy time.
 
@@ -111,31 +149,47 @@ RUN echo "Building uniswap-interface" && \
     yarn
 ```
 
-The `watcher-ts` image is used for the proxy server. By default it re-directs requests back to Uniswap. This does mean that the Uniswap front end on Urbit requires api.uniswap.org to be up and running. The configuration also takes an optional Infura API Key, which would be required for power users or increased traffic using the application.
+The `watcher-ts` image is used for the proxy server. By default, this proxy server re-directs requests back to Uniswap. This means that the Uniswap front end on Urbit requires api.uniswap.org to be up and running. The configuration also takes an optional Infura API Key, which would be required for power users or an increase in traffic using the application.
 
 ### Create Deployment
 
-First, create a spec file for the deployment, which will map the stack's ports and volumes to the host:
+First, create a spec file for the deployment:
 
 ```
 laconic-so --stack uniswap-urbit-app deploy init --output uniswap-urbit-app-spec.yml
 ```
 
-edit `uniswap-urbit-app-spec.yml` so that it looks like:
+edit `uniswap-urbit-app-spec.yml` so that it looks exactlylike:
 
-```
-TODO
+```yaml
+stack: uniswap-urbit-app
+deploy-to: compose
+network:
+  ports:
+    proxy-server:
+      - '4000:4000'
+    urbit-fake-ship:
+      - '8080:80'
+    ipfs:
+     - '4001'
+     - '8081:8080'
+     - 0.0.0.0:5001:5001
+volumes:
+  urbit_app_builds: ./data/urbit_app_builds
+  urbit_data: ./data/urbit_data
+  ipfs-import: ./data/ipfs-import
+  ipfs-data: ./data/ipfs-data
 ```
 
 Save your changes then create a deployment from that file:
 
-```
+```bash
 laconic-so --stack uniswap-urbit-app deploy create --spec-file uniswap-urbit-app-spec.yml --deployment-dir uniswap-urbit-app-deployment
 ```
 
 open `uniswap-urbit-app-deployment/config.env` and set the following
 
-```
+```bash
 # App to be installed (Do not change)
 CERC_URBIT_APP=uniswap
 
@@ -183,7 +237,21 @@ CERC_IPFS_GLOB_HOST_ENDPOINT=
 CERC_IPFS_SERVER_ENDPOINT=
 ```
 
-Take a look at the `docker-compose.yml` for the fakezod that is about to be deployed:
+Great, you can now start the stack with:
+
+```bash
+laconic-so deployment --dir uniswap-urbit-app-deployment start
+```
+
+It will take awhile (5-15 mins) to deploy, you can see progress with the following command:
+
+```
+laconic-so deployment --dir uniswap-urbit-app-deployment logs -f
+```
+
+See the [status](#status) below for details to confirm correct operation. Meanwhile, let's take a look at what is happening under the hood.
+
+For example, the `docker-compose.yml` for the fakezod that is about to be deployed looks like:
 
 ```
 version: '3.7'
@@ -435,15 +503,11 @@ The `desk.docket-0` file is application specific; for Uniswap it looks like:
 
 Recall from a script above, we use `sed` to populate the `glob-http` field. With all these pieces in place, we can start the stack...
 
-### Start the stack
+### Status
 
-```
-laconic-so deployment --dir uniswap-urbit-app-deployment start
-```
+Depending on the specs of your machine, starting a deployment can take anywhere from 5-15 minutes.
 
-Depending on the specs of your machine, starting this deployment can take anywhere from 5-15 minutes.
-
-Run the following to view logs from all processes as they come in:
+Recall that you can run the following to view logs from all processes as they come in:
 
 ```
 laconic-so deployment --dir uniswap-urbit-app-deployment logs -f
@@ -456,9 +520,9 @@ laconic-3ccf7ee79bdae874-urbit-fake-ship-1    | docket: fetching %http glob for 
 laconic-3ccf7ee79bdae874-urbit-fake-ship-1    | ">="">="uniswap app installed
 ```
 
-which is good. Confirm by running `docker ps`, all containers should be `healthy`.
+which is good. Exit from following those logs then double check that everything is by running `docker ps`, all containers should be `healthy`.
 
-Fakezod's have the same default password of `TODO` and you can confirm this with the following:
+Fakezod's have the same default password of `lidlut-tabwed-pillex-ridrup` and you can confirm this by running the following command:
 
 ```
 laconic-so deployment --dir uniswap-urbit-app-deployment exec urbit-fake-ship "curl -s --data '{\"source\":{\"dojo\":\"+code\"},\"sink\":{\"stdout\":null}}' http://localhost:12321"
