@@ -1,6 +1,6 @@
 # Self Hosted DeFi Front Ends
 
-TL;DR: `|install ~lanfyn-dasnys %uniswap`
+TL:DR; If already on Urbit, run `|install ~lanfyn-dasnys %uniswap` from the Dojo or use Landscape to search for it. If you aren't on Urbit, visit [https://ur0.laconic.com/](https://ur0.laconic.com/) and use the Access Key: `lidlut-tabwed-pillex-ridrup` to login to a hosted fakezod. The following guide outlines how to modify - then automate the deployment of - any web3 application on Urbit.
 
 Applications in web3 still remain significantly centralized. Usually, the blockchain used by a particular application cannot easily be censored. However, front ends are always served to users via a centralized pipeline of service providers, each of which is a choke point for that application.
 
@@ -501,7 +501,7 @@ The `desk.docket-0` file is application specific; for Uniswap it looks like:
 ==
 ```
 
-Recall from a script above, we use `sed` to populate the `glob-http` field. With all these pieces in place, we can start the stack...
+Recall from the script above, we use `sed` to populate the `glob-http` field. By using Stack Orchestrator, we've setup a process that is easily repeatable and automated, albeit somewhat tedious at first.
 
 ### Status
 
@@ -520,7 +520,7 @@ laconic-3ccf7ee79bdae874-urbit-fake-ship-1    | docket: fetching %http glob for 
 laconic-3ccf7ee79bdae874-urbit-fake-ship-1    | ">="">="uniswap app installed
 ```
 
-which is good. Exit from following those logs then double check that everything is by running `docker ps`, all containers should be `healthy`.
+which is great. Exit from following those logs then double check that everything is by running `docker ps`, all containers should be `healthy`.
 
 Fakezod's have the same default password of `lidlut-tabwed-pillex-ridrup` and you can confirm this by running the following command:
 
@@ -528,11 +528,11 @@ Fakezod's have the same default password of `lidlut-tabwed-pillex-ridrup` and yo
 laconic-so deployment --dir uniswap-urbit-app-deployment exec urbit-fake-ship "curl -s --data '{\"source\":{\"dojo\":\"+code\"},\"sink\":{\"stdout\":null}}' http://localhost:12321"
 ```
 
-Navigate to http://localhost:8080 and enter the password to login. You should see the Uniswap tile. If you have MetaMask installed in your browser, Uniswap should work.
+Navigate to http://localhost:8080 and enter the password to login. You should see the Uniswap tile. If you have MetaMask installed in your browser, Uniswap should work. Congratulations, you've built and deployed the Uniswap front end to an Urbit fakezod.
 
-## Automate
+## Deploy and Automate
 
-After this step, we use this pair of scripts to publish the desk to a live planet. You can do the same for your application and add it to CI workflows in order to publish the latest version of your app to your Urbit ship.
+After this step, we use this pair of scripts to publish the desk to our live ship `~lanfyn-dasnys`. You can do the same for your application and add it to your CI/CD workflows in order to publish the latest version of your app to your Urbit ship. The options here are of course endless; you could have a single ship hosting multiple versions of you app, easily browseable by any user.
 
 ```
 #!/bin/bash
@@ -632,21 +632,30 @@ hood "install our %${app_name}"
 echo "${app_name} app installed"
 ```
 
-with the main difference here being that the glob already exists and you tell the script which glob to install from. You could imagine hosting a ship with multiple versions of your application.
+## Summary
 
-## Summary & Next steps
+In this guide, we've gone through all the considerations for maintaining an up to date Urbit deployment of any web3 application. We used Stack Orchestrator to reduce the number of files and processes to keep track of when automating repeated deployments to Urbit.
+
+To de-mystify the file structure of a "stack" in Stack Orchestrator, view [this Pull Request](TODO) which adds the Urbit Hello World example as a stack.
 
 ## References
 
-- https://github.com/cerc-io/stack-orchestrator/blob/main/stack_orchestrator/data/stacks/uniswap-urbit-app/README.md
+- https://github.com/cerc-io/stack-orchestrator/blob/main/stack_orchestrator/data/stacks/uniswap-urbit-app/stack.yml
 - https://github.com/cerc-io/stack-orchestrator/tree/main/stack_orchestrator/data/config/urbit
+- https://github.com/cerc-io/stack-orchestrator/tree/main/stack_orchestrator/data/config/uniswap-interface
+- https://github.com/cerc-io/stack-orchestrator/blob/main/stack_orchestrator/data/compose/docker-compose-fixturenet-urbit.yml
+- https://github.com/cerc-io/stack-orchestrator/blob/main/stack_orchestrator/data/compose/docker-compose-uniswap-interface.yml
+- https://github.com/cerc-io/stack-orchestrator/blob/main/stack_orchestrator/data/compose/docker-compose-proxy-server.yml
+- https://github.com/cerc-io/stack-orchestrator/blob/main/stack_orchestrator/data/compose/docker-compose-kubo.yml
+- https://github.com/cerc-io/stack-orchestrator/tree/main/stack_orchestrator/data/container-build/cerc-uniswap-interface
 
 ## Glossary
 
-ship - a running Urbit
-desk - "app" installed on a ship
-planet - an UrbitID that runs as a ship
-glob file - output after feedind glob files to the globulator
-mark file - Urbit apps need a mark file for every file extension
-landscape - a default app (desk) that comes with *most* mark files that you need.
-Hoon - a programming language for Urbit; not relevant to this guide
+- ship - a running Urbit
+- desk - "app" installed on a ship
+- planet - an UrbitID that runs as a ship
+- glob file - output after feedind glob files to the globulator
+- mark file - Urbit apps need a mark file for every file extension
+- landscape - a default app (desk) that comes with *most* mark files that you need.
+- Hoon - a programming language for Urbit; not relevant to this guide
+- what else?????
