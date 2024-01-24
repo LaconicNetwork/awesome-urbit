@@ -10,12 +10,6 @@ To this end, the following doc explains a repeatable process for deploying comet
 
 - [Deploy an Urbit Comet on Digital Ocean](/docs/comets-on-DO.md)
 
-## Using Osmosis
-
-If you're in Cosmos and care about sovereignty, start here. Osmosis works out of the box:
-
-- [Swap Tokens on Osmosis, Self-Hosted on Urbit](/docs/osmosis-on-urbit.md)
-
 ## Azimuth Watcher
 
 Like most applications that use Ethereum, the Azimuth PKI relies on Infura, a centralized service provider. Laconic created the Azimuth Watcher to contribute towards ongoing decentralization of the Urbit stack. Read along:
