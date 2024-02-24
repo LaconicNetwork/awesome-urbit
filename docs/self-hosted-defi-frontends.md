@@ -14,7 +14,7 @@ Broadly, the steps are as such:
 - Generate and host a glob file
 - Publish app to your ship
 
-The first step is very much application dependent but only needs to be done once. Steps 2 and 3 are easily automated via familiar CI/CD pipelines. This tutorial outlines how to add any DeFi application to Urbit and gives examples of doing so for both Uniswap and Osmosis. Background reading of these Urbit docs is helpful as background.
+The first step is very much application dependent but only needs to be done once. Steps 2 and 3 are easily automated via familiar CI/CD pipelines. This tutorial outlines how to add any DeFi application to Urbit and gives an example using Uniswap. Background reading of these Urbit docs is helpful as background.
 
 - https://docs.urbit.org/manual/getting-started/get-id
 - https://docs.urbit.org/manual/getting-started/self-hosted/cli
