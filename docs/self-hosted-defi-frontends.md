@@ -1,6 +1,6 @@
 # Self Hosted DeFi Front Ends
 
-TL:DR; If already on Urbit, run `|install ~lanfyn-dasnys %uniswap` from the Dojo or use Landscape to search for it. If you aren't on Urbit, visit [https://ur0.laconic.com/](https://ur0.laconic.com/) and use the Access Key: `lidlut-tabwed-pillex-ridrup` to login to a hosted fakezod. The following guide outlines how to modify - then automate the deployment of - any web3 application on Urbit, using Uniswap as an example.
+TL:DR; If already on Urbit, run `|install ~lanfyn-dasnys %uniswap` from the Dojo or use Landscape to search for it. The following guide outlines how to modify - then automate the deployment of - any web3 application on Urbit, using Uniswap as an example.
 
 Applications in web3 still remain significantly centralized. Usually, the blockchain used by a particular application cannot easily be censored. However, front ends are always served to users via a centralized pipeline of service providers, each of which is a choke point for that application.
 
