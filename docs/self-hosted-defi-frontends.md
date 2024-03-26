@@ -658,4 +658,3 @@ To de-mystify the file structure of a "stack" in Stack Orchestrator, view [this 
 - mark file - Urbit apps need a mark file for every file extension
 - landscape - a default app (desk) that comes with *most* mark files that you need.
 - Hoon - a programming language for Urbit; not relevant to this guide
-- what else?????
